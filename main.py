@@ -120,8 +120,7 @@ elif menu == "Delete":
     post_index = st.selectbox("Select post to delete:",options=list(range(len(posts))), index=0)
 
     if posts:
-        st.write(f"Are you sure you want to delete the post: {
-                 posts[post_index]['title']}?")
+        st.write(f"Are you sure you want to delete the post: {posts[post_index]['title']}?")
         confirmation = st.button("Delete Post")
 
         if confirmation:
