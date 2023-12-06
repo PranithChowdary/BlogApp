@@ -1,7 +1,7 @@
 import streamlit as st
 import json
 import pickle
-import pandas as pd 
+import pandas as pd
 import numpy as np
 
 # Define a function to load and save posts from JSON file
@@ -40,11 +40,12 @@ def create_post():
     elif submit and (not title or not content):
         st.warning("Please fill out both title and content.")
 
+
 def load_models():
     '''
     Replace '..path/' by the path of the saved models.
     '''
-    
+
     # Load the vectoriser.
     file = open('vectoriser-ngram-(1,2).pickle', 'rb')
     vectoriser = pickle.load(file)
@@ -53,32 +54,34 @@ def load_models():
     file = open('Sentiment-LR.pickle', 'rb')
     LRmodel = pickle.load(file)
     file.close()
-    
+
     return vectoriser, LRmodel
+
 
 def predict(vectoriser, model, text):
     # Predict the sentiment
     textdata = vectoriser.transform(text)
     sentiment = model.predict(textdata)
-    
+
     # Make a list of text with sentiment.
     data = []
     for text, pred in zip(text, sentiment):
-        data.append((text,pred))
-        
+        data.append((text, pred))
+
     # Convert the list into a Pandas DataFrame.
-    df = pd.DataFrame(data, columns = ['text','sentiment'])
-    df = df.replace([0,1], ["Negative","Positive"])
+    df = pd.DataFrame(data, columns=['text', 'sentiment'])
+    df = df.replace([0, 1], ["Negative", "Positive"])
     return df
-    
-    
+
+
 # Display header and sidebar
 st.title("My Blog Site")
 st.sidebar.title("Team Members")
+st.sidebar.write("• LeenaRadhaAarupya Bhima – A20552405(Voice of the team)")
 st.sidebar.write("• Vishnu Reddy Balam – A20553257")
 st.sidebar.write("• Harsha Vardhan Reddy Basireddy - A20547234")
-st.sidebar.write("• LeenaRadhaAarupya Bhima – A20552405(Voice of the team)")
-menu = st.sidebar.selectbox("Choose an option:", ["Home", "Create", "Update", "Delete", "Analyze"])
+menu = st.sidebar.selectbox(
+    "Choose an option:", ["Home", "Create", "Update", "Delete", "Analyze"])
 # Show posts on home page
 if menu == "Home":
     if not posts:
@@ -118,7 +121,8 @@ elif menu == "Delete":
                               options=list(range(len(posts))), index=0)
 
     if posts:
-        st.write(f"Are you sure you want to delete the post: {posts[post_index]['title']}?")
+        st.write(f"Are you sure you want to delete the post: {
+                 posts[post_index]['title']}?")
         confirmation = st.button("Delete Post")
 
         if confirmation:
