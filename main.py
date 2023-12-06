@@ -117,8 +117,7 @@ elif menu == "Update":
 # Delete post page
 elif menu == "Delete":
     st.header("Delete Post")
-    post_index = st.selectbox("Select post to delete:",
-                              options=list(range(len(posts))), index=0)
+    post_index = st.selectbox("Select post to delete:",options=list(range(len(posts))), index=0)
 
     if posts:
         st.write(f"Are you sure you want to delete the post: {
