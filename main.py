@@ -1,5 +1,8 @@
 import streamlit as st
 import json
+import pickle
+import pandas as pd 
+import numpy as np
 
 # Define a function to load and save posts from JSON file
 
@@ -37,10 +40,45 @@ def create_post():
     elif submit and (not title or not content):
         st.warning("Please fill out both title and content.")
 
+def load_models():
+    '''
+    Replace '..path/' by the path of the saved models.
+    '''
+    
+    # Load the vectoriser.
+    file = open('/workspace/BlogApp/vectoriser-ngram-(1,2).pickle', 'rb')
+    vectoriser = pickle.load(file)
+    file.close()
+    # Load the LR Model.
+    file = open('/workspace/BlogApp/Sentiment-BNB.pickle', 'rb')
+    LRmodel = pickle.load(file)
+    file.close()
+    
+    return vectoriser, LRmodel
 
+def predict(vectoriser, model, text):
+    # Predict the sentiment
+    textdata = vectoriser.transform(text)
+    sentiment = model.predict(textdata)
+    
+    # Make a list of text with sentiment.
+    data = []
+    for text, pred in zip(text, sentiment):
+        data.append((text,pred))
+        
+    # Convert the list into a Pandas DataFrame.
+    df = pd.DataFrame(data, columns = ['text','sentiment'])
+    df = df.replace([0,1], ["Negative","Positive"])
+    return df
+    
+    
 # Display header and sidebar
-st.title("My Awesome Blog")
-menu = st.sidebar.selectbox("Choose an option:", ["Home", "Create", "Update", "Delete"])
+st.title("My Blog Site")
+st.sidebar.title("Team Members")
+st.sidebar.write("• Vishnu Reddy Balam – A20553257")
+st.sidebar.write("• Harsha Vardhan Reddy Basireddy - A20547234")
+st.sidebar.write("• LeenaRadhaAarupya Bhima – A20552405(Voice of the team)")
+menu = st.sidebar.selectbox("Choose an option:", ["Home", "Create", "Update", "Delete", "Analyze"])
 # Show posts on home page
 if menu == "Home":
     if not posts:
@@ -88,3 +126,13 @@ elif menu == "Delete":
             del posts[post_index]
             save_posts(posts)
             st.success("Post deleted successfully!")
+
+elif menu == 'Analyze':
+    vectoriser, LRmodel = load_models()
+    post_index = st.selectbox("Select post to analyze:",
+                              options=list(range(len(posts))), index=0)
+    if post_index:
+        post = posts[post_index]
+        st.write(post)
+        df = predict(vectoriser, LRmodel, post)
+        st.write(df.head())
