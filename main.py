@@ -1,95 +1,90 @@
 import streamlit as st
-import pandas as pd
+import json
 
-# Define a dictionary to store blog post data (initially empty)
-posts = {}
-
-# Create function to display blog post list
+# Define a function to load and save posts from JSON file
 
 
-def list_posts():
-    st.title("Blog Posts")
-    posts
-    for post_id in posts:
-        st.write(f"**ID:** {post_id} | **Title:** {post['title']}")
-        if st.button(f"View", key=post_id):
-            show_post(post_id)
-
-# Create function to display individual blog post
+def load_posts():
+    try:
+        with open("posts.json", "r") as f:
+            posts = json.load(f)
+    except FileNotFoundError:
+        posts = []
+    return posts
 
 
-def show_post(post_id):
-    post = posts[post_id]
-    st.title(post["title"])
-    st.markdown(post["content"])
+def save_posts(posts):
+    with open("posts.json", "w") as f:
+        json.dump(posts, f, indent=4)
+        st.success("Post Saved")
 
-# Create function to create a new blog post
+
+# Initialize posts list
+posts = load_posts()
+
+# Define functions for CRUD operations
 
 
 def create_post():
-    with st.form("Create New Post"):
-        title = st.text_input("Title:", key="title")
-        content = st.text_area("Content:", key="content")
-        submit = st.form_submit_button()
-        if submit:
-            new_id = max(posts.keys(), default=00) + 1
-            posts[new_id] = {
-                "title": title,
-                "content": content,
-            }
-            st.success("Post created successfully!")
-
-# Create function to update a blog post
+    title = st.text_input("Enter post title:")
+    content = st.text_area("Write your post:")
+    submit = st.button("Create Post")
+    if submit and title and content:
+        new_post = {"title": title, "content": content}
+        posts.append(new_post)
+        save_posts(posts)
+        st.success("Post created successfully!")
+    elif submit and (not title or not content):
+        st.warning("Please fill out both title and content.")
 
 
-def update_post(post_id):
-    post = posts[post_id].copy()
-    with st.form(f"Update Post {post_id}"):
-        st.text_input("Title:", key="title", default=post["title"])
-        st.text_area("Content:", key="content", default=post["content"])
-        if st.form_submitted():
-            posts[post_id] = {
-                "title": st.session_state["title"],
-                "content": st.session_state["content"],
-            }
-            st.success("Post updated successfully!")
+# Display header and sidebar
+st.title("My Awesome Blog")
+menu = st.sidebar.selectbox("Choose an option:", ["Home", "Create", "Update", "Delete"])
+# Show posts on home page
+if menu == "Home":
+    if not posts:
+        st.write("No posts available.")
+    else:
+        for index, post in enumerate(posts):
+            st.header(f"{index + 1}. {post['title']}")
+            st.markdown(post["content"])
 
-# Create function to delete a blog post
-
-def delete_post(post_id):
-    if st.button(f"Delete post {post_id}?", key=f"delete_{post_id}"):
-        del posts[post_id]
-        st.success("Post deleted successfully!")
-
-
-# Sidebar navigation
-page = st.sidebar.selectbox("Navigate", ["List Posts", "Create Post","Update Post","Delete Post"])
-
-# Display page content based on selection
-if page == "List Posts":
-    list_posts()
-elif page == "Create Post":
+# Create new post form
+elif menu == "Create":
     create_post()
-# elif page == "Update Post":
-#     update_post()
-# elif page == "Delete Post":
-    
-    
 
-# Additional pages for update and delete can be added here
+# Update post page
+elif menu == "Update":
+    st.header("Update Post")
+    post_index = st.selectbox("Select post to update:",
+                              options=list(range(len(posts))), index=0)
 
+    if posts:
+        post = posts[post_index]
+        updated_title = st.text_input("Edit post title:", value=post["title"])
+        updated_content = st.text_area(
+            "Edit post content:", value=post["content"])
+        submit = st.button("Update Post")
 
-def update_post():
-    post_id = st.text_input("Enter Post ID", value="")
-    post = posts[post_id].copy()
-    with st.form(f"Update Post {post_id}"):
-        st.text_input("Title:", key="title", default=post["title"])
-        st.text_area("Content:", key="content", default=post["content"])
-        if st.form_submitted():
-            posts[post_id] = {
-                "title": st.session_state["title"],
-                "content": st.session_state["content"],
-            }
-            st.session_state.clear()
+        if submit and updated_title.strip() and updated_content.strip():
+            posts[post_index]["title"] = updated_title
+            posts[post_index]["content"] = updated_content
+            save_posts(posts)
             st.success("Post updated successfully!")
 
+# Delete post page
+elif menu == "Delete":
+    st.header("Delete Post")
+    post_index = st.selectbox("Select post to delete:",
+                              options=list(range(len(posts))), index=0)
+
+    if posts:
+        st.write(f"Are you sure you want to delete the post: {
+                 posts[post_index]['title']}?")
+        confirmation = st.button("Delete Post")
+
+        if confirmation:
+            del posts[post_index]
+            save_posts(posts)
+            st.success("Post deleted successfully!")
