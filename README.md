@@ -63,3 +63,18 @@ anticipated that the fusion of Python scripting, AWS DocumentDB, and NLP integra
 will produce a new content management system with improved data capabilities. The
 distinct benchmarks guarantee a methodical strategy to project advancement,
 culminating in a fruitful and inventive conclusion.
+
+
+### Architecture
+![Architecture](arch.jpg)
+
+
+### References
+1. AWS DocumentDB Developer Guide.
+Refered to documentdb - latest - developerguide - connect_programmatically.html
+2. AWS DocumentDB
+Refered to documentdb - latest- developerguide - how-it-works.html
+3. Amazon Textract and Amazon Comprehend Integration.
+Refered to blogs – machine-learnig – segment-paragraph-and-detect-insights-with-amazontextract-adn-amazon-comprehed
+4. Amazon sagemaker using python
+Refered to sagemaker – latest – dg - clarify-online-explainability-examples.html
