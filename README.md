@@ -66,7 +66,7 @@ culminating in a fruitful and inventive conclusion.
 
 
 ### Architecture
-![Architecture](arch.jpg)
+![Architecture](arch.png)
 
 
 ### References
